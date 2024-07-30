@@ -88,7 +88,7 @@ class Directory
 
   public function directory_group($data)
   {
-    $sql = "SELECT GROUP_CONCAT(DISTINCT '[',b.subject_code,'] ',c.`name` ORDER BY b.id ASC) `subject`
+    $sql = "SELECT GROUP_CONCAT(DISTINCT '',b.subject_code,' ',c.`name` ORDER BY b.id ASC) `subject`
     FROM directory.directory_request a
     LEFT JOIN directory.directory_primary b
     ON a.id = b.request_id
@@ -102,7 +102,7 @@ class Directory
 
   public function directory_subject($data)
   {
-    $sql = "SELECT CONCAT('[',a.subject_code,'] ',b.`name`) `subject`
+    $sql = "SELECT CONCAT('',a.subject_code,' ',b.`name`) `subject`
     FROM directory.directory_subject a
     LEFT JOIN directory.`subject` b
     ON a.subject_code = b.`code`
@@ -114,7 +114,7 @@ class Directory
     return $stmt->fetchAll();
   }
 
-  public function group_count($data)
+  public function data_count($data)
   {
     $sql = "SELECT COUNT(b.id) total
     FROM directory.directory_request a

@@ -27,10 +27,12 @@ $topic = explode(",", $topic['subject']);
 $columns = ["กลุ่มงาน", "สายงาน", "ฝ่าย/ภาค", "ส่วน/เขต", "หน่วย/สาขา", "ตำแหน่ง", "E-Mail"];
 $columns = array_merge($columns, $topic);
 
-$infos_data = [];
+$data_count = $DIRECTORY->data_count([$group]); // 10
+
+$info_data = [];
 $subjects_data = [];
 foreach ($result as $row) {
-  $info_data = [
+  $info_data[] = [
     $row['group_name'],
     $row['field_name'],
     $row['department_name'],
@@ -39,11 +41,10 @@ foreach ($result as $row) {
     $row['position_name'],
     $row['email'],
   ];
-  $infos_data[] = $info_data;
 
-  $primary = explode(",", $row['primary']);
   $subject_data = [];
-  foreach ($primary as $key => $value) {
+  $topics = explode(",", $row['primary']);
+  foreach ($topics as $value) {
     $subject = $DIRECTORY->directory_subject([$value]);
     $subjects = [];
     foreach ($subject as $sub) {
@@ -53,20 +54,26 @@ foreach ($result as $row) {
   }
   $subjects_data[] = $subject_data;
 }
-echo "<pre>";
-$group_count = $DIRECTORY->group_count([$group]);
 
-$data = [];
-foreach ($infos_data as $key => $info) {
-  foreach ($subjects_data[$key] as $sub) {
-    $data[] = array_merge($info, $sub);
+
+$datas = [];
+foreach ($subjects_data as $sub) {
+  $subjects = [];
+  for ($i = 0; $i < $data_count; $i++) {
+    $subjects[$i] = [];
+    foreach ($sub as $arr) {
+      $subjects[$i][] = (isset($arr[$i]) ? $arr[$i] : "");
+    }
   }
+  $datas[] = $subjects;
 }
 
-
-
-print_r($data);
-die();
+$data = [];
+foreach ($info_data as $key => $info) {
+  foreach ($datas[$key] as $value) {
+    $data[] = array_merge($info, $value);
+  }
+}
 
 ob_start();
 $date = date('Ymd');
