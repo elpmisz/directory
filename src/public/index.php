@@ -75,6 +75,9 @@ $ROUTER->map("GET", "/", function () {
 $ROUTER->map("GET", "/home", function () {
   require(__DIR__ . "/src/Views/home/index.php");
 });
+$ROUTER->map("GET", "/info", function () {
+  require(__DIR__ . "/src/Views/home/info.php");
+});
 $ROUTER->map("GET", "/error", function () {
   require(__DIR__ . "/src/Views/home/error.php");
 });

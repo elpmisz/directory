@@ -21,7 +21,7 @@ class Directory
 
   public function directory_count($data)
   {
-    $sql = "SELECT COUNT(*) FROM directory.directory_request WHERE email = ? AND status = 1";
+    $sql = "SELECT COUNT(*) FROM directory.directory_request WHERE email = ? AND position_id = ? AND status = 1";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchColumn();
@@ -171,7 +171,16 @@ class Directory
 
   public function subject_count($data)
   {
-    $sql = "SELECT COUNT(*) FROM directory.directory_subject WHERE primary_id = ? AND subject_code = ? AND status = 1";
+    $sql = "SELECT COUNT(*) 
+    FROM directory.directory_subject a
+    LEFT JOIN directory.directory_primary b
+    ON a.primary_id = b.id
+    LEFT JOIN directory.directory_request c
+    ON b.request_id = c.id
+    WHERE c.position_id = ?
+    AND a.primary_id = ? 
+    AND a.subject_code = ? 
+    AND a.status = 1";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchColumn();
@@ -278,7 +287,7 @@ class Directory
     foreach ($result as $row) {
       $action = "<a href='/directory/edit/{$row['uuid']}' class='badge badge-{$row['status_color']} font-weight-light'>{$row['status_name']}</a> <a href='javascript:void(0)' class='badge badge-danger font-weight-light btn-delete' id='{$row['uuid']}'>ลบ</a>";
 
-      if (!empty($row['email'])) {
+      if (!empty($row['position_name'])) {
         $data[] = [
           $action,
           $row['email'],

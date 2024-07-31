@@ -94,9 +94,22 @@ if ($action === "import") {
   $columns = $READ->getActiveSheet()->getHighestColumn();
   $columnsIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($columns);
 
-  $data = [];
+  $results = [];
   foreach ($result as $value) {
-    $data[] = array_map("trim", $value);
+    $results[] = array_map("trim", $value);
+  }
+
+  $data = [];
+  $last = null;
+  foreach ($results as $key => $current) {
+    if (!empty($current[0]) || !empty($current[1])) {
+      $last = $current;
+      $data[] = $current;
+    } else {
+      if ($last !== null) {
+        $data[] = array_merge(array_slice($last, 0, 7), array_slice($current, 7));
+      }
+    }
   }
 
   foreach ($data as $key => $value) {
@@ -191,17 +204,17 @@ if ($action === "import") {
       $position_id = (!empty($position) ? $POSITION->position_id([$position]) : "");
       $email = (isset($value[6]) ? $VALIDATION->input($value[6]) : "");
 
-      $directory_count = $DIRECTORY->directory_count([$email]);
-      if (intval($directory_count) === 0 && !empty($email)) {
+      $directory_count = $DIRECTORY->directory_count([$email, $position_id]);
+      if (intval($directory_count) === 0) {
         $DIRECTORY->directory_insert([$email, $group_id, $field_id, $department_id, $zone_id, $branch_id, $position_id]);
         $request_id = $DIRECTORY->last_insert_id();
         $request[] = $request_id;
 
-        foreach ($primary_data as $primary) {
-          $primary_count = $DIRECTORY->primary_count([$request_id, $primary]);
-          if (intval($primary_count) === 0 && !empty($primary)) {
-            $subject = explode(",", $primary);
-            $DIRECTORY->primary_insert([$request_id, $subject[0], $subject[1]]);
+        foreach ($primary_data as $subject) {
+          $primary_count = $DIRECTORY->primary_count([$request_id, $subject]);
+          if (intval($primary_count) === 0 && !empty($subject)) {
+            $sub = explode(",", $subject);
+            $DIRECTORY->primary_insert([$request_id, $sub[0], $sub[1]]);
             $primary_id = $DIRECTORY->last_insert_id();
           }
         }
@@ -212,6 +225,8 @@ if ($action === "import") {
   foreach ($data as $key => $value) {
     if (!in_array($key, [0])) {
       foreach ($request as $req) {
+        $position = (isset($value[5]) ? $VALIDATION->input($value[5]) : "");
+        $position_id = (!empty($position) ? $POSITION->position_id([$position]) : "");
         for ($i = 7; $i <= $columnsIndex; $i++) {
           $subject = (!empty($value[$i]) ? $VALIDATION->input($value[$i]) : "");
           $subject = (!empty($subject) ? explode(" ", $subject, 2) : "");
@@ -223,7 +238,7 @@ if ($action === "import") {
           }
 
           $primary_id = $DIRECTORY->primary_id([$req, $i]);
-          $subject_count = $DIRECTORY->subject_count([$primary_id, $subject_code]);
+          $subject_count = $DIRECTORY->subject_count([$position_id, $primary_id, $subject_code]);
           if (intval($subject_count) === 0 && !empty($subject_code)) {
             $DIRECTORY->subject_insert([$primary_id, $subject_code]);
           }
