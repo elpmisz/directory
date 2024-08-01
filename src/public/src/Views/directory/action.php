@@ -187,7 +187,30 @@ if ($action === "import") {
     }
   }
 
-  $request = [];
+  $subject_data = [];
+  foreach ($data as $key => $value) {
+    if (!in_array($key, [0])) {
+      $branch = (isset($value[4]) ? $VALIDATION->input($value[4]) : "");
+      $branch_id = (!empty($branch) ? $BRANCH->branch_id([$branch]) : "");
+      $position = (isset($value[5]) ? $VALIDATION->input($value[5]) : "");
+      $position_id = (!empty($position) ? $POSITION->position_id([$position]) : "");
+      for ($i = 7; $i <= $columnsIndex; $i++) {
+        $subject = (!empty($value[$i]) ? $VALIDATION->input($value[$i]) : "");
+        $subject = (!empty($subject) ? explode(" ", $subject, 2) : "");
+        $subject_code = (!empty($subject[0]) ? $subject[0] : "");
+        $subject_name = (!empty($subject[1]) ? $subject[1] : "");
+        $count = $SUBJECT->subject_count([$subject_code]);
+        if (intval(($count)) === 0 && !empty($subject_code)) {
+          $SUBJECT->subject_insert([$subject_code, $subject_name, 2]);
+        }
+
+        if (!empty($subject_code)) {
+          $subject_data[] =  $branch_id . "," . $position_id . "," . $i . "," . $subject_code;
+        }
+      }
+    }
+  }
+
   foreach ($data as $key => $value) {
     if (!in_array($key, [0])) {
       $group = (isset($value[0]) ? $VALIDATION->input($value[0]) : "");
@@ -207,40 +230,20 @@ if ($action === "import") {
       $directory_count = $DIRECTORY->directory_count([$email, $position_id]);
       if (intval($directory_count) === 0) {
         $DIRECTORY->directory_insert([$email, $group_id, $field_id, $department_id, $zone_id, $branch_id, $position_id]);
-        $request_id = $DIRECTORY->last_insert_id();
-        $request[] = $request_id;
 
         foreach ($primary_data as $subject) {
-          $primary_count = $DIRECTORY->primary_count([$request_id, $subject]);
-          if (intval($primary_count) === 0 && !empty($subject)) {
-            $sub = explode(",", $subject);
-            $DIRECTORY->primary_insert([$request_id, $sub[0], $sub[1]]);
-            $primary_id = $DIRECTORY->last_insert_id();
+          $sub = explode(",", $subject);
+          $primary_count = $DIRECTORY->primary_count([$group_id, $sub[0], $sub[1]]);
+          if (intval($primary_count) === 0 && !empty($sub[0]) && !empty($sub[1])) {
+            $DIRECTORY->primary_insert([$group_id, $sub[0], $sub[1]]);
           }
         }
-      }
-    }
-  }
 
-  foreach ($data as $key => $value) {
-    if (!in_array($key, [0])) {
-      foreach ($request as $req) {
-        $position = (isset($value[5]) ? $VALIDATION->input($value[5]) : "");
-        $position_id = (!empty($position) ? $POSITION->position_id([$position]) : "");
-        for ($i = 7; $i <= $columnsIndex; $i++) {
-          $subject = (!empty($value[$i]) ? $VALIDATION->input($value[$i]) : "");
-          $subject = (!empty($subject) ? explode(" ", $subject, 2) : "");
-          $subject_code = (!empty($subject[0]) ? $subject[0] : "");
-          $subject_name = (!empty($subject[1]) ? $subject[1] : "");
-          $count = $SUBJECT->subject_count([$subject_code]);
-          if (intval(($count)) === 0 && !empty($subject_code)) {
-            $SUBJECT->subject_insert([$subject_code, $subject_name, 2]);
-          }
-
-          $primary_id = $DIRECTORY->primary_id([$req, $i]);
-          $subject_count = $DIRECTORY->subject_count([$position_id, $primary_id, $subject_code]);
-          if (intval($subject_count) === 0 && !empty($subject_code)) {
-            $DIRECTORY->subject_insert([$primary_id, $subject_code]);
+        foreach ($subject_data as $subject) {
+          $sub = explode(",", $subject);
+          $subject_count = $DIRECTORY->subject_count([$sub[0], $sub[1], $sub[2], $sub[3]]);
+          if (intval($subject_count) === 0 && !empty($sub[2]) && !empty($sub[3])) {
+            $DIRECTORY->subject_insert([$sub[0], $sub[1], $sub[2], $sub[3]]);
           }
         }
       }

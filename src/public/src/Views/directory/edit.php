@@ -9,7 +9,7 @@ use App\Classes\Directory;
 
 $DIRECTORY = new Directory();
 $row = $DIRECTORY->directory_view([$uuid]);
-$primary = $DIRECTORY->primary_view([$uuid]);
+$primary = $DIRECTORY->primary_view([$row['group_id']]);
 ?>
 
 <div class="row">
@@ -144,7 +144,7 @@ $primary = $DIRECTORY->primary_view([$uuid]);
                         <td>
                           <select class="form-control form-control-sm subject-select" name="item_subject[<?php echo $key ?>][]" multiple>
                             <?php
-                            $subject = $DIRECTORY->subject_view([$pm['id']]);
+                            $subject = $DIRECTORY->subject_view([$row['branch_id'], $row['position_id'], $pm['key']]);
                             foreach ($subject as $sub) {
                               if (!empty($sub['subject_code'])) {
                                 echo "<option value='{$sub['subject_code']}' selected>{$sub['subject_name']}</option>";

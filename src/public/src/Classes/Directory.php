@@ -60,9 +60,10 @@ class Directory
 
   public function directory_export($data)
   {
-    $sql = "SELECT a.uuid,a.email,b.`name` group_name,c.`name` field_name,d.`name` department_name,
+    $sql = "SELECT a.uuid,a.email,a.branch_id,a.position_id,
+    b.`name` group_name,c.`name` field_name,d.`name` department_name,
     e.`name` zone_name,f.`name` branch_name,g.`name` position_name,
-    GROUP_CONCAT(h.id ORDER BY h.id ASC) `primary`
+    GROUP_CONCAT(h.`key` ORDER BY h.id ASC) `primary`
     FROM directory.directory_request a
     LEFT JOIN directory.`group` b
     ON a.group_id = b.id
@@ -77,7 +78,7 @@ class Directory
     LEFT JOIN directory.`position` g
     ON a.position_id = g.id
     LEFT JOIN directory.directory_primary h
-    ON a.id = h.request_id
+    ON a.group_id = h.group_id
     WHERE a.status = 1
     AND a.group_id = ?
     GROUP BY a.id";
@@ -89,12 +90,10 @@ class Directory
   public function directory_group($data)
   {
     $sql = "SELECT GROUP_CONCAT(DISTINCT '',b.subject_code,' ',c.`name` ORDER BY b.id ASC) `subject`
-    FROM directory.directory_request a
-    LEFT JOIN directory.directory_primary b
-    ON a.id = b.request_id
+    FROM directory.directory_primary b
     LEFT JOIN directory.`subject` c
     ON b.subject_code = c.`code`
-    WHERE a.group_id = ?";
+    WHERE b.group_id = ?";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetch();
@@ -106,7 +105,9 @@ class Directory
     FROM directory.directory_subject a
     LEFT JOIN directory.`subject` b
     ON a.subject_code = b.`code`
-    WHERE a.primary_id = ?
+    WHERE a.branch_id = ?
+    AND a.position_id = ?
+    AND a.key = ?
     GROUP BY a.subject_code
     ORDER BY a.id";
     $stmt = $this->dbcon->prepare($sql);
@@ -116,16 +117,9 @@ class Directory
 
   public function data_count($data)
   {
-    $sql = "SELECT COUNT(b.id) total
-    FROM directory.directory_request a
-    LEFT JOIN directory.directory_primary b
-    ON a.id = b.request_id
-    LEFT JOIN directory.directory_subject c
-    ON b.id = c.primary_id
-    WHERE a.group_id = ?
-    GROUP BY b.id
-    ORDER BY COUNT(b.id) DESC
-    LIMIT 1";
+    $sql = "SELECT COUNT(*)
+    FROM directory.directory_primary a
+    WHERE a.group_id = ?";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchColumn();
@@ -133,7 +127,8 @@ class Directory
 
   public function primary_count($data)
   {
-    $sql = "SELECT COUNT(*) FROM directory.directory_primary WHERE request_id = ? AND subject_code = ? AND status = 1";
+    $sql = "SELECT COUNT(*) FROM directory.directory_primary 
+    WHERE group_id = ? AND `key` = ? AND subject_code = ? AND status = 1";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchColumn();
@@ -150,20 +145,22 @@ class Directory
 
   public function primary_insert($data)
   {
-    $sql = "INSERT INTO directory.directory_primary(`request_id`, `key`, `subject_code`) VALUES(?,?,?)";
+    $sql = "INSERT INTO directory.directory_primary(`group_id`, `key`, `subject_code`) VALUES(?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
 
   public function primary_view($data)
   {
-    $sql = "SELECT b.id, b.subject_code,CONCAT('[',b.subject_code,'] ',c.`name`) subject_name
+    $sql = "SELECT b.id, b.key, b.subject_code,CONCAT('[',b.subject_code,'] ',c.`name`) subject_name
     FROM directory.directory_request a
     LEFT JOIN directory.directory_primary b
-    ON a.id = b.request_id
+    ON a.group_id = b.group_id
     LEFT JOIN directory.`subject` c
     ON b.subject_code = c.`code`
-    WHERE a.`uuid` = ?";
+    WHERE a.group_id = ?
+    GROUP BY  b.subject_code
+    ORDER BY b.id ASC";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchAll();
@@ -173,12 +170,9 @@ class Directory
   {
     $sql = "SELECT COUNT(*) 
     FROM directory.directory_subject a
-    LEFT JOIN directory.directory_primary b
-    ON a.primary_id = b.id
-    LEFT JOIN directory.directory_request c
-    ON b.request_id = c.id
-    WHERE c.position_id = ?
-    AND a.primary_id = ? 
+    WHERE a.branch_id = ?
+    AND a.position_id = ?
+    AND a.key = ? 
     AND a.subject_code = ? 
     AND a.status = 1";
     $stmt = $this->dbcon->prepare($sql);
@@ -188,20 +182,20 @@ class Directory
 
   public function subject_insert($data)
   {
-    $sql = "INSERT INTO directory.directory_subject(`primary_id`, `subject_code`) VALUES(?,?)";
+    $sql = "INSERT INTO directory.directory_subject(`branch_id`, `position_id`, `key`, `subject_code`) VALUES(?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
 
   public function subject_view($data)
   {
-    $sql = "SELECT b.id, b.subject_code,CONCAT('[',b.subject_code,'] ',c.`name`) subject_name
-    FROM directory.directory_primary a
-    LEFT JOIN directory.directory_subject b
-    ON a.id = b.primary_id
-    LEFT JOIN directory.`subject` c
-    ON b.subject_code = c.`code`
-    WHERE a.id = ?";
+    $sql = "SELECT a.subject_code,CONCAT('[',a.subject_code,']',b.`name`) subject_name
+    FROM directory.directory_subject a
+    LEFT JOIN directory.`subject` b
+    ON a.subject_code = b.`code`
+    WHERE a.branch_id = ?
+    AND a.position_id = ?
+    AND a.`key` = ?";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchAll();
@@ -229,7 +223,7 @@ class Directory
     e.`name` zone_name,f.`name` branch_name,g.`name` position_name,
     (
     CASE
-      WHEN a.status = 1 THEN 'ใช้งาน'
+      WHEN a.status = 1 THEN 'รายละเอียด'
       WHEN a.status = 2 THEN 'ระงับการใช้งาน'
       WHEN a.status = 0 THEN 'ลบ' 
       ELSE NULL
@@ -285,7 +279,7 @@ class Directory
 
     $data = [];
     foreach ($result as $row) {
-      $action = "<a href='/directory/edit/{$row['uuid']}' class='badge badge-{$row['status_color']} font-weight-light'>{$row['status_name']}</a> <a href='javascript:void(0)' class='badge badge-danger font-weight-light btn-delete' id='{$row['uuid']}'>ลบ</a>";
+      $action = "<a href='/directory/edit/{$row['uuid']}' class='badge badge-{$row['status_color']} font-weight-light'>{$row['status_name']}</a>";
 
       if (!empty($row['position_name'])) {
         $data[] = [
