@@ -55,8 +55,44 @@ $param2 = (isset($param[2]) ? $param[2] : "");
 
 if ($action === "create") {
   try {
-    echo "<pre>";
-    print_r($_POST);
+    $email = (isset($_POST['email']) ? $VALIDATION->input($_POST['email']) : "");
+    $group_id = (isset($_POST['group_id']) ? $VALIDATION->input($_POST['group_id']) : "");
+    $field_id = (isset($_POST['field_id']) ? $VALIDATION->input($_POST['field_id']) : "");
+    $department_id = (isset($_POST['department_id']) ? $VALIDATION->input($_POST['department_id']) : "");
+    $zone_id = (isset($_POST['zone_id']) ? $VALIDATION->input($_POST['zone_id']) : "");
+    $branch_id = (isset($_POST['branch_id']) ? $VALIDATION->input($_POST['branch_id']) : "");
+    $position_id = (isset($_POST['position_id']) ? $VALIDATION->input($_POST['position_id']) : "");
+
+    $directory_count = $DIRECTORY->directory_count([$email, $position_id]);
+    if (intval($directory_count) > 0) {
+      $VALIDATION->alert("danger", "ข้อมูลซ้ำในระบบ!", "/directory");
+    }
+
+    $DIRECTORY->directory_insert([$email, $group_id, $field_id, $department_id, $zone_id, $branch_id, $position_id]);
+
+    foreach ($_POST['item_primary'] as $key => $value) {
+      $item_key = $DIRECTORY->directory_key([$group_id]);
+      $item_key = (intval($item_key));
+
+      $item_primary = (isset($_POST['item_primary'][$key]) ? $VALIDATION->input($_POST['item_primary'][$key]) : "");
+      $item_subject = (isset($_POST['item_subject'][$key]) ? $_POST['item_subject'][$key] : "");
+
+      $primary_count = $DIRECTORY->primary_count([$group_id, $item_key, $item_primary]);
+      if (intval($primary_count) === 0) {
+        $DIRECTORY->primary_insert([$group_id, $item_key, $item_primary]);
+      }
+
+      if (!empty($item_subject)) {
+        foreach ($item_subject as $subject) {
+          $subject_count = $DIRECTORY->subject_count([$branch_id, $position_id, $item_key, $subject]);
+          if (intval($subject_count) === 0) {
+            $DIRECTORY->subject_insert([$branch_id, $position_id, $item_key, $subject]);
+          }
+        }
+      }
+    }
+
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/directory");
   } catch (PDOException $e) {
     die($e->getMessage());
   }
@@ -64,8 +100,82 @@ if ($action === "create") {
 
 if ($action === "update") {
   try {
-    echo "<pre>";
-    print_r($_POST);
+    $request_id = (isset($_POST['id']) ? $VALIDATION->input($_POST['id']) : "");
+    $uuid = (isset($_POST['uuid']) ? $VALIDATION->input($_POST['uuid']) : "");
+    $email = (isset($_POST['email']) ? $VALIDATION->input($_POST['email']) : "");
+    $group_id = (isset($_POST['group_id']) ? $VALIDATION->input($_POST['group_id']) : "");
+    $field_id = (isset($_POST['field_id']) ? $VALIDATION->input($_POST['field_id']) : "");
+    $department_id = (isset($_POST['department_id']) ? $VALIDATION->input($_POST['department_id']) : "");
+    $zone_id = (isset($_POST['zone_id']) ? $VALIDATION->input($_POST['zone_id']) : "");
+    $branch_id = (isset($_POST['branch_id']) ? $VALIDATION->input($_POST['branch_id']) : "");
+    $position_id = (isset($_POST['position_id']) ? $VALIDATION->input($_POST['position_id']) : "");
+    $status = (isset($_POST['status']) ? $VALIDATION->input($_POST['status']) : "");
+
+    $DIRECTORY->directory_update([$email, $group_id, $field_id, $department_id, $zone_id, $branch_id, $position_id, $status, $uuid]);
+
+    if (!empty($_POST['item__primary'])) {
+      foreach ($_POST['item__primary'] as $key => $value) {
+        $item__key = $DIRECTORY->directory_key([$group_id]);
+        $item__primary = (isset($_POST['item__primary'][$key]) ? $VALIDATION->input($_POST['item__primary'][$key]) : "");
+        $item__subject = (isset($_POST['item__subject'][$key]) ? $_POST['item__subject'][$key] : "");
+
+        $primary_count = $DIRECTORY->primary_count([$group_id, $item__key, $item__primary]);
+        if (intval($primary_count) === 0) {
+          $DIRECTORY->primary_insert([$group_id, $item__key, $item__primary]);
+        }
+
+        if (!empty($item__subject)) {
+          foreach ($item__subject as $subject) {
+            $subject_count = $DIRECTORY->subject_count([$branch_id, $position_id, $item__key, $subject]);
+            if (intval($subject_count) === 0) {
+              $DIRECTORY->subject_insert([$branch_id, $position_id, $item__key, $subject]);
+            }
+          }
+        }
+      }
+    }
+
+    foreach ($_POST['item_primary'] as $key => $value) {
+      $item_key = (isset($_POST['item_key'][$key]) ? $VALIDATION->input($_POST['item_key'][$key]) : "");
+      $item_primary = (isset($_POST['item_primary'][$key]) ? $VALIDATION->input($_POST['item_primary'][$key]) : "");
+      $item_subject = (isset($_POST['item_subject'][$key]) ? array_filter($_POST['item_subject'][$key]) : "");
+
+      if (!empty($item_subject)) {
+        foreach ($item_subject as $subject) {
+          $subject_count = $DIRECTORY->subject_count([$branch_id, $position_id, $item_key, $subject]);
+          if (intval($subject_count) === 0) {
+            $DIRECTORY->subject_insert([$branch_id, $position_id, $item_key, $subject]);
+          }
+        }
+      }
+
+      $DIRECTORY->subject_inactive([$branch_id, $position_id, $item_key]);
+      if (!empty($item_subject)) {
+        foreach ($item_subject as $subject) {
+          $DIRECTORY->subject_active([$branch_id, $position_id, $item_key, $subject]);
+        }
+      }
+    }
+
+    $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!", "/directory");
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+if ($action === "primary-delete") {
+  try {
+    $data = json_decode(file_get_contents("php://input"), true);
+    $id = $data['id'];
+
+    if (!empty($id)) {
+      $DIRECTORY->primary_delete([$id]);
+      $VALIDATION->alert("success", "ดำเนินการเรียบร้อย!");
+      echo json_encode(200);
+    } else {
+      $VALIDATION->alert("danger", "ระบบมีปัญหา ลองใหม่อีกครั้ง!");
+      echo json_encode(500);
+    }
   } catch (PDOException $e) {
     die($e->getMessage());
   }

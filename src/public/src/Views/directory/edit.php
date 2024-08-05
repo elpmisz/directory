@@ -21,7 +21,7 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
       <div class="card-body">
         <form action="/directory/update" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
 
-          <div class="row mb-2">
+          <div class="row mb-2" style="display: none;">
             <label class="col-xl-2 offset-xl-2 col-form-label">ID</label>
             <div class="col-xl-4">
               <input type="text" class="form-control form-control-sm" name="id" value="<?php echo $row['id'] ?>" readonly>
@@ -30,7 +30,7 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
               </div>
             </div>
           </div>
-          <div class="row mb-2">
+          <div class="row mb-2" style="display: none;">
             <label class="col-xl-2 offset-xl-2 col-form-label">UUID</label>
             <div class="col-xl-4">
               <input type="text" class="form-control form-control-sm" name="uuid" value="<?php echo $row['uuid'] ?>" readonly>
@@ -52,7 +52,11 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
             <label class="col-xl-2 offset-xl-2 col-form-label">กลุ่มงาน</label>
             <div class="col-xl-6">
               <select class="form-control form-control-sm group-select" name="group_id" required>
-                <?php echo '<option value="' . $row['group_id'] . '">' . $row['group_name'] . '</option>'; ?>
+                <?php
+                if (!empty($row['group_name'])) {
+                  echo '<option value="' . $row['group_id'] . '">' . $row['group_name'] . '</option>';
+                }
+                ?>
               </select>
               <div class="invalid-feedback">
                 กรุณากรอกข้อมูล!
@@ -63,7 +67,11 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
             <label class="col-xl-2 offset-xl-2 col-form-label">สายงาน</label>
             <div class="col-xl-6">
               <select class="form-control form-control-sm field-select" name="field_id" required>
-                <?php echo '<option value="' . $row['field_id'] . '">' . $row['field_name'] . '</option>'; ?>
+                <?php
+                if (!empty($row['field_name'])) {
+                  echo '<option value="' . $row['field_id'] . '">' . $row['field_name'] . '</option>';
+                }
+                ?>
               </select>
               <div class="invalid-feedback">
                 กรุณากรอกข้อมูล!
@@ -74,7 +82,11 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
             <label class="col-xl-2 offset-xl-2 col-form-label">ฝ่าย/ภาค</label>
             <div class="col-xl-6">
               <select class="form-control form-control-sm department-select" name="department_id" required>
-                <?php echo '<option value="' . $row['department_id'] . '">' . $row['department_name'] . '</option>'; ?>
+                <?php
+                if (!empty($row['department_name'])) {
+                  echo '<option value="' . $row['department_id'] . '">' . $row['department_name'] . '</option>';
+                }
+                ?>
               </select>
               <div class="invalid-feedback">
                 กรุณากรอกข้อมูล!
@@ -84,8 +96,12 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
           <div class="row mb-2">
             <label class="col-xl-2 offset-xl-2 col-form-label">ส่วน/เขต</label>
             <div class="col-xl-6">
-              <select class="form-control form-control-sm zone-select" name="zone_id" required>
-                <?php echo '<option value="' . $row['zone_id'] . '">' . $row['zone_name'] . '</option>'; ?>
+              <select class="form-control form-control-sm zone-select" name="zone_id">
+                <?php
+                if (!empty($row['zone_name'])) {
+                  echo '<option value="' . $row['zone_id'] . '">' . $row['zone_name'] . '</option>';
+                }
+                ?>
               </select>
               <div class="invalid-feedback">
                 กรุณากรอกข้อมูล!
@@ -95,8 +111,12 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
           <div class="row mb-2">
             <label class="col-xl-2 offset-xl-2 col-form-label">หน่วย/สาขา</label>
             <div class="col-xl-6">
-              <select class="form-control form-control-sm branch-select" name="branch_id" required>
-                <?php echo '<option value="' . $row['branch_id'] . '">' . $row['branch_name'] . '</option>'; ?>
+              <select class="form-control form-control-sm branch-select" name="branch_id">
+                <?php
+                if (!empty($row['branch_name'])) {
+                  echo '<option value="' . $row['branch_id'] . '">' . $row['branch_name'] . '</option>';
+                }
+                ?>
               </select>
               <div class="invalid-feedback">
                 กรุณากรอกข้อมูล!
@@ -107,7 +127,11 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
             <label class="col-xl-2 offset-xl-2 col-form-label">ตำแหน่ง</label>
             <div class="col-xl-6">
               <select class="form-control form-control-sm position-select" name="position_id" required>
-                <?php echo '<option value="' . $row['position_id'] . '">' . $row['position_name'] . '</option>'; ?>
+                <?php
+                if (!empty($row['position_name'])) {
+                  echo '<option value="' . $row['position_id'] . '">' . $row['position_name'] . '</option>';
+                }
+                ?>
               </select>
               <div class="invalid-feedback">
                 กรุณากรอกข้อมูล!
@@ -129,17 +153,13 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
                   <tbody>
                     <?php foreach ($primary as $key => $pm) : ?>
                       <tr>
-                        <td>
+                        <td class="text-center">
                           <a href="javascript:void(0)" class="badge badge-danger font-weight-light item-delete" id="<?php echo $pm['id'] ?>">ลบ</a>
-                          <input type="hidden" class="form-control form-control-sm text-center" name="item_id[]" value="<?php echo $pm['id'] ?>" readonly>
+                          <input type="hidden" class="form-control form-control-sm text-center" name="item_key[]" value="<?php echo $pm['key'] ?>" readonly>
+                          <input type="hidden" class="form-control form-control-sm text-center" name="item_primary[]" value="<?php echo $pm['subject_code'] ?>" readonly>
                         </td>
                         <td>
-                          <select class="form-control form-control-sm primary-select" name="item_primary[]" required>
-                            <?php echo '<option value="' . $pm['subject_code'] . '">' . $pm['subject_name'] . '</option>'; ?>
-                          </select>
-                          <div class="invalid-feedback">
-                            กรุณากรอกข้อมูล!
-                          </div>
+                          <?php echo $pm['subject_name'] ?>
                         </td>
                         <td>
                           <select class="form-control form-control-sm subject-select" name="item_subject[<?php echo $key ?>][]" multiple>
@@ -164,13 +184,13 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
                         <button type="button" class="btn btn-sm btn-danger item-decrease">-</button>
                       </td>
                       <td class="text-left">
-                        <select class="form-control form-control-sm primary-select" name="item_primary[]"></select>
+                        <select class="form-control form-control-sm primary-select" name="item__primary[]"></select>
                         <div class="invalid-feedback">
                           กรุณากรอกข้อมูล!
                         </div>
                       </td>
                       <td class="text-left">
-                        <select class="form-control form-control-sm subject-select" name="item_subject" multiple></select>
+                        <select class="form-control form-control-sm subject-select" name="item__subject[0][]" multiple></select>
                         <div class="invalid-feedback">
                           กรุณากรอกข้อมูล!
                         </div>
@@ -223,12 +243,18 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
 
 <?php include_once(__DIR__ . "/../layout/footer.php"); ?>
 <script>
+  var i = 1;
   $(".item-decrease").hide();
   $(document).on("click", ".item-increase", function() {
-    // $(".item-select").select2('destroy');
+    $(".item-select").select2('destroy');
     let row = $(".item-tr:last");
     let clone = row.clone();
     clone.find("input, select, textarea, span").val("").empty();
+    clone.find("input, select").each(function() {
+      this.name = this.name.replace(/\[(\d+)\]/, function(str, count) {
+        return '[' + (parseInt(count, 10) + i) + ']'
+      });
+    });
     clone.find(".item-increase").hide();
     clone.find(".item-decrease").show();
     clone.find(".item-decrease").on("click", function() {
@@ -236,6 +262,42 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
     });
     row.after(clone);
     clone.show();
+
+    $(".primary-select").select2({
+      placeholder: "-- สมรรถนะ --",
+      allowClear: true,
+      width: "100%",
+      ajax: {
+        url: "/directory/primary-select",
+        method: "POST",
+        dataType: "json",
+        delay: 100,
+        processResults: function(data) {
+          return {
+            results: data
+          };
+        },
+        cache: true
+      }
+    });
+
+    $(".subject-select").select2({
+      placeholder: "-- รายวิชา --",
+      allowClear: true,
+      width: "100%",
+      ajax: {
+        url: "/directory/subject-select",
+        method: "POST",
+        dataType: "json",
+        delay: 100,
+        processResults: function(data) {
+          return {
+            results: data
+          };
+        },
+        cache: true
+      }
+    });
   });
 
   $(".group-select").select2({
@@ -380,5 +442,36 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
       },
       cache: true
     }
+  });
+
+  $(document).on("click", ".item-delete", function(e) {
+    let id = ($(this).prop("id") ? $(this).prop("id") : "");
+    e.preventDefault();
+    Swal.fire({
+      title: "ยืนยันที่จะทำรายการ?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "ตกลง",
+      cancelButtonText: "ปิด",
+    }).then((result) => {
+      if (result.value) {
+        axios.post("/directory/primary-delete", {
+          id: id,
+        }).then((res) => {
+          let result = res.data;
+          if (result === 200) {
+            location.reload()
+          } else {
+            location.reload()
+          }
+        }).catch((error) => {
+          console.log(error);
+        });
+      } else {
+        return false;
+      }
+    })
   });
 </script>

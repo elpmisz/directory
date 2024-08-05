@@ -27,6 +27,15 @@ class Directory
     return $stmt->fetchColumn();
   }
 
+  public function directory_key($data)
+  {
+    $sql = "SELECT `key` FROM directory.directory_primary WHERE group_id = ? ORDER BY `key` DESC";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    $row = $stmt->fetch();
+    return (isset($row['key']) ? intval($row['key']) + 1 : "");
+  }
+
   public function directory_insert($data)
   {
     $sql = "INSERT INTO directory.directory_request(`uuid`, `email`, `group_id`, `field_id`, `department_id`, `zone_id`, `branch_id`, `position_id`) VALUES(uuid(),?,?,?,?,?,?,?)";
@@ -56,6 +65,22 @@ class Directory
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetch();
+  }
+
+  public function directory_update($data)
+  {
+    $sql = "UPDATE directory.directory_request SET
+    email = ?,
+    group_id = ?,
+    field_id = ?,
+    department_id = ?,
+    zone_id = ?,
+    branch_id = ?,
+    position_id = ?,
+    status = ?
+    WHERE uuid = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    return $stmt->execute($data);
   }
 
   public function directory_export($data)
@@ -108,6 +133,7 @@ class Directory
     WHERE a.branch_id = ?
     AND a.position_id = ?
     AND a.key = ?
+    AND a.status = 1
     GROUP BY a.subject_code
     ORDER BY a.id";
     $stmt = $this->dbcon->prepare($sql);
@@ -117,9 +143,13 @@ class Directory
 
   public function data_count($data)
   {
-    $sql = "SELECT COUNT(*)
-    FROM directory.directory_primary a
-    WHERE a.group_id = ?";
+    $sql = "SELECT COUNT(a.`key`) total
+    FROM directory.directory_subject a
+    WHERE a.branch_id = ?
+    AND a.position_id = ?
+    GROUP BY a.`key`
+    ORDER BY COUNT(a.`key`) DESC
+    LIMIT 1";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchColumn();
@@ -127,7 +157,8 @@ class Directory
 
   public function primary_count($data)
   {
-    $sql = "SELECT COUNT(*) FROM directory.directory_primary 
+    $sql = "SELECT COUNT(*) 
+    FROM directory.directory_primary 
     WHERE group_id = ? AND `key` = ? AND subject_code = ? AND status = 1";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
@@ -159,11 +190,21 @@ class Directory
     LEFT JOIN directory.`subject` c
     ON b.subject_code = c.`code`
     WHERE a.group_id = ?
+    AND b.status = 1
     GROUP BY  b.subject_code
     ORDER BY b.id ASC";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchAll();
+  }
+
+  public function primary_delete($data)
+  {
+    $sql = "UPDATE directory.directory_primary SET
+    status = 0
+    WHERE id = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    return $stmt->execute($data);
   }
 
   public function subject_count($data)
@@ -195,7 +236,33 @@ class Directory
     ON a.subject_code = b.`code`
     WHERE a.branch_id = ?
     AND a.position_id = ?
-    AND a.`key` = ?";
+    AND a.`key` = ?
+    AND a.status = 1";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    return $stmt->fetchAll();
+  }
+
+  public function subject_inactive($data)
+  {
+    $sql = "UPDATE directory.directory_subject SET
+    status = 0
+    WHERE branch_id = ?
+    AND position_id = ?
+    AND `key` = ?";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute($data);
+    return $stmt->fetchAll();
+  }
+
+  public function subject_active($data)
+  {
+    $sql = "UPDATE directory.directory_subject SET
+    status = 1
+    WHERE branch_id = ?
+    AND position_id = ?
+    AND `key` = ?
+    AND subject_code = ?";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchAll();
@@ -253,7 +320,7 @@ class Directory
     WHERE a.`status` IN (1,2) ";
 
     if (!empty($keyword)) {
-      $sql .= " AND (a.code LIKE '%{$keyword}%' OR a.name LIKE '%{$keyword}%') ";
+      $sql .= " AND (a.email LIKE '%{$keyword}%' OR b.name LIKE '%{$keyword}%' OR c.name LIKE '%{$keyword}%' OR d.name LIKE '%{$keyword}%' OR e.name LIKE '%{$keyword}%' OR f.name LIKE '%{$keyword}%' OR g.name LIKE '%{$keyword}%') ";
     }
     if (!empty($group)) {
       $sql .= " AND a.group_id = '{$group}' ";

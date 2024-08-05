@@ -51,7 +51,7 @@ include_once(__DIR__ . "/../layout/header.php");
           <div class="row mb-2">
             <label class="col-xl-2 offset-xl-2 col-form-label">ส่วน/เขต</label>
             <div class="col-xl-6">
-              <select class="form-control form-control-sm zone-select" name="zone_id" required></select>
+              <select class="form-control form-control-sm zone-select" name="zone_id"></select>
               <div class="invalid-feedback">
                 กรุณากรอกข้อมูล!
               </div>
@@ -60,7 +60,7 @@ include_once(__DIR__ . "/../layout/header.php");
           <div class="row mb-2">
             <label class="col-xl-2 offset-xl-2 col-form-label">หน่วย/สาขา</label>
             <div class="col-xl-6">
-              <select class="form-control form-control-sm branch-select" name="branch_id" required></select>
+              <select class="form-control form-control-sm branch-select" name="branch_id"></select>
               <div class="invalid-feedback">
                 กรุณากรอกข้อมูล!
               </div>

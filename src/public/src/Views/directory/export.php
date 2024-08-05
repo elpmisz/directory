@@ -27,7 +27,7 @@ $topic = explode(",", $topic['subject']);
 $columns = ["กลุ่มงาน", "สายงาน", "ฝ่าย/ภาค", "ส่วน/เขต", "หน่วย/สาขา", "ตำแหน่ง", "E-Mail"];
 $columns = array_merge($columns, $topic);
 
-$data_count = $DIRECTORY->data_count([$group]);
+$data_count = null;
 
 $info_data = [];
 $subjects_data = [];
@@ -41,6 +41,8 @@ foreach ($result as $row) {
     $row['position_name'],
     $row['email'],
   ];
+
+  $data_count = $DIRECTORY->data_count([$row['branch_id'], $row['position_id']]);
 
   $subject_data = [];
   $topics = explode(",", $row['primary']);
