@@ -54,7 +54,7 @@ include_once(__DIR__ . "/../layout/header.php");
       serverSide: true,
       searching: true,
       scrollX: true,
-      order: [],
+      order: false,
       ajax: {
         url: "/user/user-data",
         type: "POST",

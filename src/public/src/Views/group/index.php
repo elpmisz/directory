@@ -54,7 +54,7 @@ include_once(__DIR__ . "/../layout/header.php");
       scrollX: true,
       serverSide: true,
       searching: true,
-      order: [],
+      order: false,
       ajax: {
         url: "/group/data",
         type: "POST",

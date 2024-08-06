@@ -1,6 +1,6 @@
 <?php
-$menu = "setting";
-$page = "setting-branch";
+$menu = "service";
+$page = "service-suggestion";
 include_once(__DIR__ . "/../layout/header.php");
 ?>
 
@@ -8,18 +8,18 @@ include_once(__DIR__ . "/../layout/header.php");
   <div class="col-xl-12">
     <div class="card shadow">
       <div class="card-header">
-        <h4 class="text-center">หน่วย/สาขา</h4>
+        <h4 class="text-center">ข้อเสนอแนะ</h4>
       </div>
       <div class="card-body">
 
         <div class="row justify-content-end mb-2">
           <div class="col-xl-3 mb-2">
-            <a href="/branch/export" class="btn btn-success btn-sm btn-block">
+            <a href="/suggestion/export" class="btn btn-success btn-sm btn-block">
               <i class="fas fa-download pr-2"></i>นำข้อมูลออก
             </a>
           </div>
           <div class="col-xl-3 mb-2">
-            <a href="/branch/create" class="btn btn-primary btn-sm btn-block">
+            <a href="/suggestion/create" class="btn btn-primary btn-sm btn-block">
               <i class="fas fa-plus pr-2"></i>เพิ่ม
             </a>
           </div>
@@ -32,7 +32,9 @@ include_once(__DIR__ . "/../layout/header.php");
                 <thead>
                   <tr>
                     <th width="10%">#</th>
-                    <th width="70%">รายชื่อ</th>
+                    <th width="20%">ผู้ใช้บริการ</th>
+                    <th width="20%">หัวข้อ</th>
+                    <th width="50%">รายละเอียด</th>
                   </tr>
                 </thead>
               </table>
@@ -56,7 +58,7 @@ include_once(__DIR__ . "/../layout/header.php");
       searching: true,
       order: false,
       ajax: {
-        url: "/branch/data",
+        url: "/suggestion/data",
         type: "POST",
       },
       columnDefs: [{
@@ -99,7 +101,7 @@ include_once(__DIR__ . "/../layout/header.php");
       cancelButtonText: "ปิด",
     }).then((result) => {
       if (result.value) {
-        axios.post("/branch/delete", {
+        axios.post("/suggestion/delete", {
           uuid: uuid
         }).then((res) => {
           let result = res.data;

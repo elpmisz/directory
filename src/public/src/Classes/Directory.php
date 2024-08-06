@@ -268,7 +268,7 @@ class Directory
     return $stmt->fetchAll();
   }
 
-  public function directory_data($group = null)
+  public function directory_data($group = null, $primary = null, $subject = null)
   {
     $sql = "SELECT COUNT(*) FROM directory.directory_request WHERE status = 1";
     $stmt = $this->dbcon->prepare($sql);
@@ -317,6 +317,11 @@ class Directory
     ON a.branch_id = f.id
     LEFT JOIN directory.`position` g
     ON a.position_id = g.id
+    LEFT JOIN directory.directory_primary h
+    ON a.group_id = h.group_id
+    LEFT JOIN directory.directory_subject i
+    ON a.branch_id = i.branch_id
+    AND a.position_id = i.position_id
     WHERE a.`status` IN (1,2) ";
 
     if (!empty($keyword)) {
@@ -325,6 +330,14 @@ class Directory
     if (!empty($group)) {
       $sql .= " AND a.group_id = '{$group}' ";
     }
+    if (!empty($primary)) {
+      $sql .= " AND h.subject_code = '{$primary}' ";
+    }
+    if (!empty($subject)) {
+      $sql .= " AND i.subject_code = '{$subject}' ";
+    }
+
+    $sql .= " GROUP BY a.id  ";
 
     if ($filter_order) {
       $sql .= " ORDER BY {$column[$order_column]} {$order_dir} ";

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: database
--- Generation Time: Aug 01, 2024 at 07:39 AM
+-- Generation Time: Aug 06, 2024 at 03:05 PM
 -- Server version: 11.4.2-MariaDB-ubu2404
 -- PHP Version: 8.2.21
 
@@ -692,7 +692,7 @@ CREATE TABLE `login` (
 --
 
 INSERT INTO `login` (`id`, `uuid`, `email`, `password`, `level`, `status`, `updated`, `created`) VALUES
-(1, 0x30323133653763342d383961612d313165652d62, 'admin@test.com', '$2y$10$zgN7Tu3Yxcj/w0KCbhEBy.5EuYiJRPaDMd50CJ4L0D5a7pcVh/dgC', 9, 1, '2024-07-23 19:11:24', '2023-11-23 09:42:54');
+(1, 0x30323133653763342d383961612d313165652d62, 'admin@test.com', '$2y$10$zgN7Tu3Yxcj/w0KCbhEBy.5EuYiJRPaDMd50CJ4L0D5a7pcVh/dgC', 9, 1, '2024-08-03 10:25:25', '2023-11-23 09:42:54');
 
 -- --------------------------------------------------------
 
@@ -1172,6 +1172,30 @@ INSERT INTO `subject` (`id`, `uuid`, `code`, `name`, `type`, `status`, `updated`
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `suggestion`
+--
+
+CREATE TABLE `suggestion` (
+  `id` int(11) NOT NULL,
+  `uuid` binary(20) NOT NULL,
+  `user` varchar(100) NOT NULL,
+  `name` varchar(200) NOT NULL,
+  `text` text NOT NULL,
+  `status` int(1) NOT NULL DEFAULT 1,
+  `updated` datetime DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `suggestion`
+--
+
+INSERT INTO `suggestion` (`id`, `uuid`, `user`, `name`, `text`, `status`, `updated`, `created`) VALUES
+(1, 0x65396666306265622d353366612d313165662d38, 'UserTest', 'ทดสอบระบบ', 'ขอเพิ่ม User ใน Directory', 1, '2024-08-06 20:58:25', '2024-08-06 20:51:00');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `system`
 --
 
@@ -1210,7 +1234,7 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `login`, `firstname`, `lastname`, `contact`) VALUES
-(1, 1, 'admin', 'system', '1669');
+(1, 1, 'Admin', 'Test', '-');
 
 -- --------------------------------------------------------
 
@@ -1313,6 +1337,12 @@ ALTER TABLE `subject`
   ADD UNIQUE KEY `uuid` (`uuid`);
 
 --
+-- Indexes for table `suggestion`
+--
+ALTER TABLE `suggestion`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `system`
 --
 ALTER TABLE `system`
@@ -1394,6 +1424,12 @@ ALTER TABLE `position`
 --
 ALTER TABLE `subject`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=397;
+
+--
+-- AUTO_INCREMENT for table `suggestion`
+--
+ALTER TABLE `suggestion`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `system`

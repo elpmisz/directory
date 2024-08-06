@@ -366,7 +366,9 @@ if ($action === "import") {
 if ($action === "data") {
   try {
     $group = (isset($_POST['group']) ? $VALIDATION->input($_POST['group']) : "");
-    $result = $DIRECTORY->directory_data($group);
+    $primary = (isset($_POST['primary']) ? $VALIDATION->input($_POST['primary']) : "");
+    $subject = (isset($_POST['subject']) ? $VALIDATION->input($_POST['subject']) : "");
+    $result = $DIRECTORY->directory_data($group, $primary, $subject);
     echo json_encode($result);
   } catch (PDOException $e) {
     die($e->getMessage());

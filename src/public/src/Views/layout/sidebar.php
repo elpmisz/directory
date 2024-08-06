@@ -4,6 +4,7 @@ $home_index = ($page === "home-index" ? 'class="active"' : "");
 
 $service_menu = (isset($menu) && ($menu === "service") ? "show" : "");
 $service_directory = ($page === "service-directory" ? 'class="active"' : "");
+$service_suggestion = ($page === "service-suggestion" ? 'class="active"' : "");
 
 $user_menu = (isset($menu) && ($menu === "user") ? "show" : "");
 $user_profile = ($page === "user-profile" ? 'class="active"' : "");
@@ -51,6 +52,12 @@ $setting_position = ($page === "setting-position" ? 'class="active"' : "");
           <a href="/directory">
             <i class="fa fa-bars pr-2"></i>
             Directory
+          </a>
+        </li>
+        <li <?php echo $service_suggestion ?>>
+          <a href="/suggestion">
+            <i class="fa fa-bars pr-2"></i>
+            ข้อเสนอแนะ
           </a>
         </li>
       </ul>

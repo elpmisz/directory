@@ -32,6 +32,14 @@ include_once(__DIR__ . "/../layout/header.php");
             </a>
           </div>
         </div>
+        <div class="row justify-content-end mb-2">
+          <div class="col-xl-3 mb-2">
+            <select class="form-control form-control-sm primary-select"></select>
+          </div>
+          <div class="col-xl-3 mb-2">
+            <select class="form-control form-control-sm subject-select"></select>
+          </div>
+        </div>
 
         <div class="row mb-2">
           <div class="col-xl-12">
@@ -109,29 +117,33 @@ include_once(__DIR__ . "/../layout/header.php");
 <script>
   filter_datatable();
 
-  $(document).on("change", ".group-select", function() {
+  $(document).on("change", ".group-select, .primary-select, .subject-select", function() {
     let group = ($(".group-select").val() ? $(".group-select").val() : "");
+    let primary = ($(".primary-select").val() ? $(".primary-select").val() : "");
+    let subject = ($(".subject-select").val() ? $(".subject-select").val() : "");
 
-    if (group) {
+    if (group || primary || subject) {
       $(".data").DataTable().destroy();
-      filter_datatable(group);
+      filter_datatable(group, primary, subject);
     } else {
       $(".data").DataTable().destroy();
       filter_datatable();
     }
   });
 
-  function filter_datatable(group) {
+  function filter_datatable(group, primary, subject) {
     let datatable = $(".data").DataTable({
       scrollX: true,
       serverSide: true,
       searching: true,
-      order: [],
+      order: false,
       ajax: {
         url: "/directory/data",
         type: "POST",
         data: {
-          group: group
+          group: group,
+          primary: primary,
+          subject: subject,
         }
       },
       columnDefs: [{
@@ -189,6 +201,42 @@ include_once(__DIR__ . "/../layout/header.php");
   $(document).on("submit", ".import", function() {
     $("#import-modal").modal("hide");
     $("#process-modal").modal("show");
+  });
+
+  $(".primary-select").select2({
+    placeholder: "-- สมรรถนะ --",
+    allowClear: true,
+    width: "100%",
+    ajax: {
+      url: "/directory/primary-select",
+      method: "POST",
+      dataType: "json",
+      delay: 100,
+      processResults: function(data) {
+        return {
+          results: data
+        };
+      },
+      cache: true
+    }
+  });
+
+  $(".subject-select").select2({
+    placeholder: "-- รายวิชา --",
+    allowClear: true,
+    width: "100%",
+    ajax: {
+      url: "/directory/subject-select",
+      method: "POST",
+      dataType: "json",
+      delay: 100,
+      processResults: function(data) {
+        return {
+          results: data
+        };
+      },
+      cache: true
+    }
   });
 
   $(".group-select").select2({

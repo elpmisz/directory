@@ -20,6 +20,22 @@ $ROUTER->map("GET", "/directory/edit/[**:params]", function ($params) {
 $ROUTER->map("POST", "/directory/[**:params]", function ($params) {
   require(__DIR__ . "/src/Views/directory/action.php");
 });
+################### SUGGESTIN ###################
+$ROUTER->map("GET", "/suggestion", function () {
+  require(__DIR__ . "/src/Views/suggestion/index.php");
+});
+$ROUTER->map("GET", "/suggestion/create", function () {
+  require(__DIR__ . "/src/Views/suggestion/create.php");
+});
+$ROUTER->map("GET", "/suggestion/export", function () {
+  require(__DIR__ . "/src/Views/suggestion/export.php");
+});
+$ROUTER->map("GET", "/suggestion/edit/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/suggestion/edit.php");
+});
+$ROUTER->map("POST", "/suggestion/[**:params]", function ($params) {
+  require(__DIR__ . "/src/Views/suggestion/action.php");
+});
 
 
 ##################### SETTING #####################
