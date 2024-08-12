@@ -11,7 +11,11 @@ $DIRECTORY = new Directory();
 $row = $DIRECTORY->directory_view([$uuid]);
 $primary = $DIRECTORY->primary_view([$row['group_id']]);
 ?>
-
+<style>
+  .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+    display: grid;
+  }
+</style>
 <div class="row">
   <div class="col-xl-12">
     <div class="card shadow">
@@ -141,13 +145,13 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
 
           <div class="row justify-content-center mb-2">
             <div class="col-sm-11">
-              <div class="table-responsive">
+              <div class="">
                 <table class="table table-bordered table-sm subject-table">
                   <thead>
                     <tr>
                       <th width="10%">#</th>
-                      <th width="40%">สมรรถนะ</th>
-                      <th width="50%">รายวิชา</th>
+                      <th width="45%">สมรรถนะ</th>
+                      <th width="45%">รายวิชา</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -162,7 +166,7 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
                           <?php echo $pm['subject_name'] ?>
                         </td>
                         <td>
-                          <select class="form-control form-control-sm subject-select" name="item_subject[<?php echo $key ?>][]" multiple>
+                          <select class="form-control form-control-sm subject-select" style="width:500px;" name="item_subject[<?php echo $key ?>][]" multiple>
                             <?php
                             $subject = $DIRECTORY->subject_view([$row['branch_id'], $row['position_id'], $pm['key']]);
                             foreach ($subject as $sub) {
@@ -284,7 +288,7 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
     $(".subject-select").select2({
       placeholder: "-- รายวิชา --",
       allowClear: true,
-      width: "100%",
+      // width: "100%",
       ajax: {
         url: "/directory/subject-select",
         method: "POST",
@@ -429,7 +433,7 @@ $primary = $DIRECTORY->primary_view([$row['group_id']]);
   $(".subject-select").select2({
     placeholder: "-- รายวิชา --",
     allowClear: true,
-    width: "100%",
+    // width: "100%",
     ajax: {
       url: "/directory/subject-select",
       method: "POST",

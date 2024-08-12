@@ -3,7 +3,11 @@ $menu = "service";
 $page = "service-directory";
 include_once(__DIR__ . "/../layout/header.php");
 ?>
-
+<style>
+  .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+    display: grid;
+  }
+</style>
 <div class="row">
   <div class="col-xl-12">
     <div class="card shadow">
@@ -83,8 +87,8 @@ include_once(__DIR__ . "/../layout/header.php");
                   <thead>
                     <tr>
                       <th width="10%">#</th>
-                      <th width="40%">สมรรถนะ</th>
-                      <th width="50%">รายวิชา</th>
+                      <th width="45%">สมรรถนะ</th>
+                      <th width="45%">รายวิชา</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -100,7 +104,7 @@ include_once(__DIR__ . "/../layout/header.php");
                         </div>
                       </td>
                       <td class="text-left">
-                        <select class="form-control form-control-sm subject-select" name="item_subject[0][]" multiple></select>
+                        <select class="form-control form-control-sm subject-select" style="width:500px;" name="item_subject[0][]" multiple></select>
                         <div class="invalid-feedback">
                           กรุณากรอกข้อมูล!
                         </div>
@@ -174,7 +178,7 @@ include_once(__DIR__ . "/../layout/header.php");
     $(".subject-select").select2({
       placeholder: "-- รายวิชา --",
       allowClear: true,
-      width: "100%",
+      // width: "100%",
       ajax: {
         url: "/directory/subject-select",
         method: "POST",
@@ -319,7 +323,7 @@ include_once(__DIR__ . "/../layout/header.php");
   $(".subject-select").select2({
     placeholder: "-- รายวิชา --",
     allowClear: true,
-    width: "100%",
+    // width: "100%",
     ajax: {
       url: "/directory/subject-select",
       method: "POST",
