@@ -237,7 +237,8 @@ class Directory
     WHERE a.branch_id = ?
     AND a.position_id = ?
     AND a.`key` = ?
-    AND a.status = 1";
+    AND a.status = 1
+    GROUP BY a.subject_code";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchAll();
@@ -317,11 +318,6 @@ class Directory
     ON a.branch_id = f.id
     LEFT JOIN directory.`position` g
     ON a.position_id = g.id
-    LEFT JOIN directory.directory_primary h
-    ON a.group_id = h.group_id
-    LEFT JOIN directory.directory_subject i
-    ON a.branch_id = i.branch_id
-    AND a.position_id = i.position_id
     WHERE a.`status` IN (1,2) ";
 
     if (!empty($keyword)) {

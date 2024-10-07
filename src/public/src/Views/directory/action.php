@@ -2,6 +2,7 @@
 session_start();
 ini_set("display_errors", 1);
 ini_set('memory_limit', '-1');
+set_time_limit(0);
 error_reporting(E_ALL);
 date_default_timezone_set("Asia/Bangkok");
 include_once(__DIR__ . "/../../../vendor/autoload.php");
@@ -282,16 +283,17 @@ if ($action === "import") {
     if (in_array($key, [0])) {
       for ($i = 7; $i <= $columnsIndex; $i++) {
         $primary = (!empty($value[$i]) ? $VALIDATION->input($value[$i]) : "");
-        $primary = (!empty($primary) ? explode(" ", $primary, 2) : "");
-        $primary_code = (!empty($primary[0]) ? $primary[0] : "");
-        $primary_name = (!empty($primary[1]) ? $primary[1] : "");
-        $count = $SUBJECT->subject_count([$primary_code]);
-        if (intval(($count)) === 0 && !empty($primary_code)) {
-          $SUBJECT->subject_insert([$primary_code, $primary_name, 1]);
-        }
+        if (preg_match('/^([A-Z]+\d+)(?:\s+)?(.*)$/', $primary, $matches)) {
+          $primary_code = (!empty($matches[1]) ? $matches[1] : "");
+          $primary_name = (!empty($matches[2]) ? $matches[2] : "");
+          $count = $SUBJECT->subject_count([$primary_code]);
+          if (intval(($count)) === 0 && !empty($primary_code)) {
+            $SUBJECT->subject_insert([$primary_code, $primary_name, 1]);
+          }
 
-        if (!empty($primary_code)) {
-          $primary_data[] = $i . "," . $primary_code;
+          if (!empty($primary_code)) {
+            $primary_data[] = $i . "," . $primary_code;
+          }
         }
       }
     }
@@ -306,16 +308,17 @@ if ($action === "import") {
       $position_id = (!empty($position) ? $POSITION->position_id([$position]) : "");
       for ($i = 7; $i <= $columnsIndex; $i++) {
         $subject = (!empty($value[$i]) ? $VALIDATION->input($value[$i]) : "");
-        $subject = (!empty($subject) ? explode(" ", $subject, 2) : "");
-        $subject_code = (!empty($subject[0]) ? $subject[0] : "");
-        $subject_name = (!empty($subject[1]) ? $subject[1] : "");
-        $count = $SUBJECT->subject_count([$subject_code]);
-        if (intval(($count)) === 0 && !empty($subject_code)) {
-          $SUBJECT->subject_insert([$subject_code, $subject_name, 2]);
-        }
+        if (preg_match('/^([A-Z]+\d+)(?:\s+)?(.*)$/', $subject, $matches)) {
+          $subject_code = (!empty($matches[1]) ? $matches[1] : "");
+          $subject_name = (!empty($matches[2]) ? $matches[2] : "");
+          $count = $SUBJECT->subject_count([$subject_code]);
+          if (intval(($count)) === 0 && !empty($subject_code)) {
+            $SUBJECT->subject_insert([$subject_code, $subject_name, 2]);
+          }
 
-        if (!empty($subject_code)) {
-          $subject_data[] =  $branch_id . "," . $position_id . "," . $i . "," . $subject_code;
+          if (!empty($subject_code)) {
+            $subject_data[] =  $branch_id . "," . $position_id . "," . $i . "," . $subject_code;
+          }
         }
       }
     }
