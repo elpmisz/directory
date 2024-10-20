@@ -223,6 +223,10 @@ if ($action === "import") {
     }
   }
 
+  // echo "<pre>";
+  // print_r($data);
+  // die();
+
   foreach ($data as $key => $value) {
     if (!in_array($key, [0])) {
       $group = (isset($value[0]) ? $VALIDATION->input($value[0]) : "");
@@ -324,6 +328,8 @@ if ($action === "import") {
     }
   }
 
+  $last = $DIRECTORY->directory_last();
+
   foreach ($data as $key => $value) {
     if (!in_array($key, [0])) {
       $group = (isset($value[0]) ? $VALIDATION->input($value[0]) : "");
@@ -342,13 +348,13 @@ if ($action === "import") {
 
       $directory_count = $DIRECTORY->directory_count([$email, $position_id]);
       if (intval($directory_count) === 0) {
-        $DIRECTORY->directory_insert([$email, $group_id, $field_id, $department_id, $zone_id, $branch_id, $position_id]);
+        $DIRECTORY->directory_insert([$email, $group_id, $last, $field_id, $department_id, $zone_id, $branch_id, $position_id]);
 
         foreach ($primary_data as $subject) {
           $sub = explode(",", $subject);
-          $primary_count = $DIRECTORY->primary_count([$group_id, $sub[0], $sub[1]]);
+          $primary_count = $DIRECTORY->primary_count([$group_id, $last, $sub[0], $sub[1]]);
           if (intval($primary_count) === 0 && !empty($sub[0]) && !empty($sub[1])) {
-            $DIRECTORY->primary_insert([$group_id, $sub[0], $sub[1]]);
+            $DIRECTORY->primary_insert([$group_id, $last, $sub[0], $sub[1]]);
           }
         }
 

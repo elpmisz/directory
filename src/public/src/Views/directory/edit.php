@@ -9,7 +9,7 @@ use App\Classes\Directory;
 
 $DIRECTORY = new Directory();
 $row = $DIRECTORY->directory_view([$uuid]);
-$primary = $DIRECTORY->primary_view([$row['group_id']]);
+$primary = $DIRECTORY->primary_view([$row['group_id'], $row['last']]);
 ?>
 <style>
   .select2-container--default .select2-selection--multiple .select2-selection__rendered {

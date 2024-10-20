@@ -27,6 +27,15 @@ class Directory
     return $stmt->fetchColumn();
   }
 
+  public function directory_last()
+  {
+    $sql = "SELECT `last` FROM directory.directory_request ORDER BY `last` DESC";
+    $stmt = $this->dbcon->prepare($sql);
+    $stmt->execute();
+    $row = $stmt->fetch();
+    return (isset($row['last']) ? intval($row['last']) + 1 : 1);
+  }
+
   public function directory_key($data)
   {
     $sql = "SELECT `key` FROM directory.directory_primary WHERE group_id = ? ORDER BY `key` DESC";
@@ -38,14 +47,14 @@ class Directory
 
   public function directory_insert($data)
   {
-    $sql = "INSERT INTO directory.directory_request(`uuid`, `email`, `group_id`, `field_id`, `department_id`, `zone_id`, `branch_id`, `position_id`) VALUES(uuid(),?,?,?,?,?,?,?)";
+    $sql = "INSERT INTO directory.directory_request(`uuid`, `email`, `group_id`, `last`, `field_id`, `department_id`, `zone_id`, `branch_id`, `position_id`) VALUES(uuid(),?,?,?,?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
 
   public function directory_view($data)
   {
-    $sql = "SELECT a.id,a.`uuid`,a.email,a.`status`,
+    $sql = "SELECT a.id,a.`uuid`,a.email,a.`status`,a.last,
     a.group_id,b.`name` group_name,a.field_id,c.`name` field_name,a.department_id,d.`name` department_name,
     a.zone_id,e.`name` zone_name,a.branch_id,f.`name` branch_name,a.position_id,g.`name` position_name
     FROM directory.directory_request a
@@ -159,7 +168,7 @@ class Directory
   {
     $sql = "SELECT COUNT(*) 
     FROM directory.directory_primary 
-    WHERE group_id = ? AND `key` = ? AND subject_code = ? AND status = 1";
+    WHERE group_id = ? AND `last` = ? AND `key` = ? AND subject_code = ? AND status = 1";
     $stmt = $this->dbcon->prepare($sql);
     $stmt->execute($data);
     return $stmt->fetchColumn();
@@ -176,7 +185,7 @@ class Directory
 
   public function primary_insert($data)
   {
-    $sql = "INSERT INTO directory.directory_primary(`group_id`, `key`, `subject_code`) VALUES(?,?,?)";
+    $sql = "INSERT INTO directory.directory_primary(`group_id`, `last`, `key`, `subject_code`) VALUES(?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -187,9 +196,11 @@ class Directory
     FROM directory.directory_request a
     LEFT JOIN directory.directory_primary b
     ON a.group_id = b.group_id
+    AND a.last = b.last
     LEFT JOIN directory.`subject` c
     ON b.subject_code = c.`code`
     WHERE a.group_id = ?
+    AND a.last = ?
     AND b.status = 1
     GROUP BY  b.subject_code
     ORDER BY b.id ASC";

@@ -181,7 +181,7 @@ include_once(__DIR__ . "/../layout/header.php");
     let fileExt = $(this).val().split(".").pop().toLowerCase();
     let fileAllow = ["xls", "xlsx", "csv"];
     let convFileSize = fileSize.toFixed(2);
-    if (convFileSize > 10) {
+    if (convFileSize > 30) {
       Swal.fire({
         icon: "error",
         title: "LIMIT 10MB!",

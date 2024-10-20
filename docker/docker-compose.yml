@@ -14,7 +14,7 @@ services:
     container_name: directory-server
     restart: unless-stopped
     ports:
-      - 9000:80
+      - "9000:80"
     volumes:
       - ../src:/var/www
       - ./nginx:/etc/nginx/conf.d
@@ -24,10 +24,11 @@ services:
     container_name: directory-database
     restart: unless-stopped
     ports:
-      - 3309:3306
+      - "3309:3306"
     command: ['--sql_mode=']
     environment:
-      MARIADB_ROOT_PASSWORD: P@ssw0rd#db
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: directory
       TZ: Asia/Bangkok
 
   phpmyadmin:
@@ -35,8 +36,9 @@ services:
     container_name: directory-phpmyadmin
     restart: unless-stopped
     ports:
-      - 9001:80
+      - "9001:80"
     environment:
       PMA_HOST: database
+      PMA_USER: root
+      PMA_PASSWORD: ${DB_ROOT_PASSWORD}
       UPLOAD_LIMIT: 20M
-  
