@@ -168,7 +168,7 @@ $primary = $DIRECTORY->primary_view([$row['group_id'], $row['last']]);
                         <td>
                           <select class="form-control form-control-sm subject-select" style="width:500px;" name="item_subject[<?php echo $key ?>][]" multiple>
                             <?php
-                            $subject = $DIRECTORY->subject_view([$row['branch_id'], $row['position_id'], $pm['key']]);
+                            $subject = $DIRECTORY->subject_view([$row['last'], $row['branch_id'], $row['position_id'], $pm['key']]);
                             foreach ($subject as $sub) {
                               if (!empty($sub['subject_code'])) {
                                 echo "<option value='{$sub['subject_code']}' selected>{$sub['subject_name']}</option>";

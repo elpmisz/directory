@@ -362,7 +362,7 @@ if ($action === "import") {
           $sub = explode(",", $subject);
           $subject_count = $DIRECTORY->subject_count([$sub[0], $sub[1], $sub[2], $sub[3]]);
           if (intval($subject_count) === 0 && !empty($sub[2]) && !empty($sub[3])) {
-            $DIRECTORY->subject_insert([$sub[0], $sub[1], $sub[2], $sub[3]]);
+            $DIRECTORY->subject_insert([$last, $sub[0], $sub[1], $sub[2], $sub[3]]);
           }
         }
       }

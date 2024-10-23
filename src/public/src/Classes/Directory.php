@@ -234,7 +234,7 @@ class Directory
 
   public function subject_insert($data)
   {
-    $sql = "INSERT INTO directory.directory_subject(`branch_id`, `position_id`, `key`, `subject_code`) VALUES(?,?,?,?)";
+    $sql = "INSERT INTO directory.directory_subject(`last`,`branch_id`, `position_id`, `key`, `subject_code`) VALUES(?,?,?,?,?)";
     $stmt = $this->dbcon->prepare($sql);
     return $stmt->execute($data);
   }
@@ -245,7 +245,8 @@ class Directory
     FROM directory.directory_subject a
     LEFT JOIN directory.`subject` b
     ON a.subject_code = b.`code`
-    WHERE a.branch_id = ?
+    WHERE a.last = ?
+    AND a.branch_id = ?
     AND a.position_id = ?
     AND a.`key` = ?
     AND a.status = 1
