@@ -2,7 +2,7 @@ services:
   app:
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: /php/Dockerfile
     container_name: directory-app
     restart: unless-stopped
     working_dir: /var/www/
@@ -28,7 +28,7 @@ services:
     command: ['--sql_mode=']
     environment:
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MARIADB_DATABASE: directory
+      MARIADB_DATABASE: ${DB_DATABASE}
       TZ: Asia/Bangkok
 
   phpmyadmin:
@@ -38,7 +38,7 @@ services:
     ports:
       - "9001:80"
     environment:
-      PMA_HOST: database
-      PMA_USER: root
+      PMA_HOST: ${DB_HOST}
+      PMA_USER: ${DB_USER}
       PMA_PASSWORD: ${DB_ROOT_PASSWORD}
-      UPLOAD_LIMIT: 20M
+      UPLOAD_LIMIT: 50M
